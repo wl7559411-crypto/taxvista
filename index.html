@@ -5,11 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TaxVista</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
 
+  <style>
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: Inter, Arial, sans-serif;
@@ -20,21 +18,12 @@
     .navbar {
       display: flex;
       justify-content: space-between;
-      align-items: center;
       padding: 18px 32px;
-      background: #ffffff;
+      background: #fff;
       border-bottom: 1px solid #e6ebf2;
-      position: sticky;
-      top: 0;
-      z-index: 10;
     }
 
-    .brand {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1746a2;
-    }
-
+    .brand { font-weight: 700; font-size: 22px; color: #1746a2; }
     .nav-badge {
       background: #eef4ff;
       color: #1746a2;
@@ -45,774 +34,235 @@
     }
 
     .hero {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 56px 24px 24px;
+      max-width: 1100px;
+      margin: auto;
+      padding: 40px;
       display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 24px;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
     }
 
-    .hero-left, .hero-right, .panel, .chart-card, .insight-card, .return-card {
-      background: #ffffff;
+    .card {
+      background: #fff;
       border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(20, 30, 60, 0.06);
-    }
-
-    .hero-left {
-      padding: 36px;
-    }
-
-    .hero-right {
-      padding: 28px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .eyebrow {
-      display: inline-block;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: #edf3ff;
-      color: #1746a2;
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 16px;
-    }
-
-    h1 {
-      font-size: 42px;
-      line-height: 1.15;
-      margin: 0 0 16px;
-      letter-spacing: -0.5px;
-    }
-
-    .hero p {
-      font-size: 16px;
-      line-height: 1.7;
-      color: #4f5b73;
-      margin: 0 0 18px;
-    }
-
-    .hero-list {
-      margin: 18px 0 0;
-      padding-left: 18px;
-      color: #4f5b73;
-      line-height: 1.8;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     }
 
     .metric-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      gap: 12px;
     }
 
-    .metric {
-      background: #f8fbff;
-      border: 1px solid #e7efff;
-      border-radius: 16px;
-      padding: 18px;
-    }
-
-    .metric-label {
-      font-size: 13px;
-      color: #62708b;
-      margin-bottom: 8px;
-    }
-
-    .metric-value {
-      font-size: 28px;
-      font-weight: 700;
-      color: #172033;
-    }
+    .metric { background:#f7faff; padding:15px; border-radius:12px; }
+    .metric-label { font-size:12px; color:#666; }
+    .metric-value { font-size:22px; font-weight:bold; }
 
     .main {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 8px 24px 56px;
+      max-width: 1100px;
+      margin: auto;
       display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 24px;
-    }
-
-    .panel {
-      padding: 24px;
-      align-self: start;
-      position: sticky;
-      top: 88px;
-    }
-
-    .section-title {
-      font-size: 22px;
-      margin: 0 0 10px;
-    }
-
-    .section-subtitle {
-      font-size: 14px;
-      color: #62708b;
-      line-height: 1.6;
-      margin-bottom: 20px;
-    }
-
-    .year-select-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      margin-bottom: 18px;
-    }
-
-    .year-chip {
-      text-align: center;
-      padding: 10px 0;
-      background: #f2f6fc;
-      border: 1px solid #dbe4f0;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #40506b;
-    }
-
-    .year-chip.active {
-      background: #1746a2;
-      color: #fff;
-      border-color: #1746a2;
-    }
-
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: #40506b;
-      margin: 12px 0 6px;
-    }
-
-    input[type="number"], input[type="file"], select {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1px solid #dbe4f0;
-      border-radius: 12px;
-      font-size: 14px;
-      background: #fff;
-    }
-
-    input[type="file"] {
-      padding: 10px;
-      background: #f9fbff;
-    }
-
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 18px;
-    }
-
-    button {
-      border: none;
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .primary-btn {
-      background: #1746a2;
-      color: #fff;
-      flex: 1;
-    }
-
-    .secondary-btn {
-      background: #eef3fb;
-      color: #1746a2;
-      flex: 1;
-    }
-
-    .dashboard {
-      display: grid;
+      grid-template-columns: 350px 1fr;
       gap: 20px;
-    }
-
-    .return-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 16px;
-    }
-
-    .return-card {
-      padding: 18px;
-      border: 1px solid #edf1f7;
-    }
-
-    .return-year {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .return-status {
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-
-    .status-available {
-      background: #ebfff2;
-      color: #1b7f46;
-    }
-
-    .status-missing {
-      background: #fff4e9;
-      color: #a86710;
-    }
-
-    .return-meta {
-      font-size: 13px;
-      color: #5e6d87;
-      line-height: 1.7;
-    }
-
-    .charts-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    .chart-card {
       padding: 20px;
     }
 
-    .chart-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin: 0 0 14px;
+    input, select {
+      width:100%;
+      padding:10px;
+      border-radius:10px;
+      border:1px solid #ddd;
+      margin-bottom:10px;
     }
 
-    .insights-grid {
-      display: grid;
-      gap: 16px;
+    button {
+      padding:10px;
+      border:none;
+      border-radius:10px;
+      font-weight:bold;
+      cursor:pointer;
     }
 
-    .insight-card {
-      padding: 18px 20px;
-      border-left: 5px solid #1746a2;
+    .primary { background:#1746a2; color:white; }
+    .secondary { background:#eef3fb; }
+
+    .year-select-grid {
+      display:grid;
+      grid-template-columns: repeat(5,1fr);
+      gap:6px;
+      margin-bottom:10px;
     }
 
-    .insight-title {
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 8px;
+    .year-chip {
+      padding:8px;
+      text-align:center;
+      background:#eee;
+      border-radius:10px;
     }
 
-    .insight-body {
-      font-size: 14px;
-      color: #56657f;
-      line-height: 1.7;
-    }
-
-    .education-note {
-      background: #f7faff;
-      border: 1px solid #e6eefc;
-      padding: 16px;
-      border-radius: 14px;
-      font-size: 14px;
-      color: #5c6b86;
-      line-height: 1.7;
-    }
-
-    .footer-note {
-      font-size: 12px;
-      color: #7a869d;
-      margin-top: 16px;
-      line-height: 1.6;
-    }
-
-    @media (max-width: 980px) {
-      .hero,
-      .main,
-      .charts-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .panel {
-        position: static;
-      }
-
-      h1 {
-        font-size: 34px;
-      }
-    }
+    .chart-card { background:white; padding:20px; border-radius:20px; }
   </style>
 </head>
+
 <body>
-  <div class="navbar">
-    <div class="brand">TaxVista</div>
-    <div class="nav-badge">2025 returns available</div>
+
+<div class="navbar">
+  <div class="brand">TaxVista</div>
+  <div class="nav-badge">Auto updating years</div>
+</div>
+
+<div class="hero">
+  <div class="card">
+    <h1>Understand your taxes</h1>
+    <p>Track trends and insights over time.</p>
   </div>
 
-  <section class="hero">
-    <div class="hero-left">
-      <div class="eyebrow">Tax understanding platform</div>
-      <h1>Understand your taxes with clarity, context, and trends.</h1>
-      <p>
-        TaxVista is designed to help individuals see the bigger picture behind
-        their tax history. Instead of focusing only on filing, the platform
-        helps users organize past returns, visualize year-over-year changes,
-        and better understand how income, deductions, credits, and tax burden evolve over time.
-      </p>
-      <ul class="hero-list">
-        <li>Track 2–5 years of personal tax return history</li>
-        <li>Visualize income, taxable income, and tax burden trends</li>
-        <li>Generate insight-based summaries for decision support</li>
-        <li>Improve tax awareness through education-focused analytics</li>
-      </ul>
-    </div>
-
-    <div class="hero-right">
-      <div class="metric-grid">
-        <div class="metric">
-          <div class="metric-label">Returns tracked</div>
-          <div class="metric-value" id="metricReturns">0</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Latest return</div>
-          <div class="metric-value" id="metricLatest">2025</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Avg. tax rate</div>
-          <div class="metric-value" id="metricRate">0%</div>
-        </div>
-        <div class="metric">
-          <div class="metric-label">Total credits</div>
-          <div class="metric-value" id="metricCredits">$0</div>
-        </div>
+  <div class="card">
+    <div class="metric-grid">
+      <div class="metric">
+        <div class="metric-label">Returns</div>
+        <div class="metric-value" id="metricReturns">0</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Latest</div>
+        <div class="metric-value" id="metricLatest">-</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Avg Rate</div>
+        <div class="metric-value" id="metricRate">0%</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Credits</div>
+        <div class="metric-value" id="metricCredits">$0</div>
       </div>
     </div>
-  </section>
+  </div>
+</div>
 
-  <section class="main">
-    <aside class="panel">
-      <h2 class="section-title">Add or update a return</h2>
-      <div class="section-subtitle">
-        Upload a return file for recordkeeping and enter key values from Form 1040
-        to build your dashboard. This version focuses on understanding patterns,
-        not filing taxes.
-      </div>
+<div class="main">
 
-      <div class="year-select-grid">
-        <div class="year-chip">2021</div>
-        <div class="year-chip">2022</div>
-        <div class="year-chip">2023</div>
-        <div class="year-chip">2024</div>
-        <div class="year-chip active">2025</div>
-      </div>
+  <div class="card">
+    <h3>Add or update a return</h3>
 
-      <label for="taxYear">Tax Year</label>
-      <select id="taxYear">
-        <option value="2021">2021</option>
-        <option value="2022">2022</option>
-        <option value="2023">2023</option>
-        <option value="2024">2024</option>
-        <option value="2025" selected>2025</option>
-      </select>
+    <div id="yearChips" class="year-select-grid"></div>
 
-      <label for="returnFile">Upload 1040 Return (PDF)</label>
-      <input type="file" id="returnFile" accept=".pdf" />
+    <select id="taxYear"></select>
 
-      <label for="agi">Adjusted Gross Income (AGI)</label>
-      <input type="number" id="agi" placeholder="e.g. 85000" />
+    <input type="number" id="agi" placeholder="AGI">
+    <input type="number" id="taxableIncome" placeholder="Taxable Income">
+    <input type="number" id="totalTax" placeholder="Total Tax">
+    <input type="number" id="credits" placeholder="Credits">
 
-      <label for="taxableIncome">Taxable Income</label>
-      <input type="number" id="taxableIncome" placeholder="e.g. 71000" />
+    <button class="primary" onclick="saveReturn()">Save</button>
+    <button class="secondary" onclick="loadDemo()">Demo</button>
+  </div>
 
-      <label for="totalTax">Total Tax</label>
-      <input type="number" id="totalTax" placeholder="e.g. 9800" />
-
-      <label for="deductions">Deductions</label>
-      <input type="number" id="deductions" placeholder="e.g. 13850" />
-
-      <label for="credits">Credits</label>
-      <input type="number" id="credits" placeholder="e.g. 1200" />
-
-      <div class="btn-row">
-        <button class="primary-btn" onclick="saveReturn()">Save Return</button>
-        <button class="secondary-btn" onclick="loadSampleData()">Load Demo</button>
-      </div>
-
-      <div class="footer-note">
-        Informational dashboard only. This tool is intended to help users
-        understand trends and patterns in historical tax data.
-      </div>
-    </aside>
-
-    <div class="dashboard">
-      <div>
-        <h2 class="section-title">Return history</h2>
-        <div class="section-subtitle">
-          Organize multiple years of returns and monitor what changed over time.
-        </div>
-        <div class="return-grid" id="returnGrid"></div>
-      </div>
-
-      <div class="charts-grid">
-        <div class="chart-card">
-          <h3 class="chart-title">AGI vs Taxable Income Trend</h3>
-          <canvas id="incomeChart"></canvas>
-        </div>
-        <div class="chart-card">
-          <h3 class="chart-title">Total Tax vs Credits</h3>
-          <canvas id="taxChart"></canvas>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <h3 class="chart-title">Insights</h3>
-        <div class="insights-grid" id="insights"></div>
-      </div>
-
-      <div class="education-note">
-        Taxes often affect a significant share of a person’s income, yet many people
-        receive little or no education about how tax systems work before entering adulthood.
-        TaxVista is built to improve awareness, transparency, and financial understanding
-        through accessible data visualization and tax insight summaries.
-      </div>
+  <div>
+    <div class="chart-card">
+      <canvas id="chart"></canvas>
     </div>
-  </section>
+  </div>
 
-  <script>
-    let storedReturns = [];
+</div>
 
-    let incomeChart;
-    let taxChart;
+<script>
 
-    function currency(value) {
-      return "$" + Number(value || 0).toLocaleString();
+let data = [];
+
+function generateYears(){
+  const current = new Date().getFullYear();
+
+  const chips = document.getElementById("yearChips");
+  const select = document.getElementById("taxYear");
+
+  chips.innerHTML = "";
+  select.innerHTML = "";
+
+  for(let i=0;i<5;i++){
+    let y = current - i;
+
+    let chip = document.createElement("div");
+    chip.className="year-chip";
+    chip.innerText=y;
+    chips.appendChild(chip);
+
+    let opt = document.createElement("option");
+    opt.value=y;
+    opt.text=y;
+    select.appendChild(opt);
+  }
+
+  document.getElementById("metricLatest").innerText=current;
+}
+
+function saveReturn(){
+  let r = {
+    year: document.getElementById("taxYear").value,
+    agi: +document.getElementById("agi").value,
+    tax: +document.getElementById("totalTax").value,
+    credits: +document.getElementById("credits").value
+  };
+
+  data.push(r);
+
+  localStorage.setItem("taxData", JSON.stringify(data));
+
+  render();
+}
+
+function loadStorage(){
+  let d = localStorage.getItem("taxData");
+  if(d) data = JSON.parse(d);
+}
+
+function loadDemo(){
+  data = [
+    {year:"2022", agi:50000, tax:5000, credits:300},
+    {year:"2023", agi:70000, tax:8000, credits:600},
+    {year:"2024", agi:90000, tax:12000, credits:900}
+  ];
+  render();
+}
+
+function render(){
+  document.getElementById("metricReturns").innerText=data.length;
+
+  if(data.length){
+    let avg = data.reduce((a,b)=>a+(b.tax/b.agi),0)/data.length;
+    document.getElementById("metricRate").innerText=(avg*100).toFixed(1)+"%";
+
+    let credits = data.reduce((a,b)=>a+b.credits,0);
+    document.getElementById("metricCredits").innerText="$"+credits;
+  }
+
+  drawChart();
+}
+
+let chart;
+
+function drawChart(){
+  if(chart) chart.destroy();
+
+  let ctx=document.getElementById("chart");
+
+  chart=new Chart(ctx,{
+    type:"line",
+    data:{
+      labels:data.map(x=>x.year),
+      datasets:[{
+        label:"AGI",
+        data:data.map(x=>x.agi)
+      }]
     }
+  });
+}
 
-    function percent(value) {
-      return Number(value).toFixed(1) + "%";
-    }
+generateYears();
+loadStorage();
+render();
 
-    function saveReturn() {
-      const year = document.getElementById("taxYear").value;
-      const fileInput = document.getElementById("returnFile");
-      const fileName = fileInput.files[0] ? fileInput.files[0].name : "No file uploaded";
-      const agi = Number(document.getElementById("agi").value || 0);
-      const taxableIncome = Number(document.getElementById("taxableIncome").value || 0);
-      const totalTax = Number(document.getElementById("totalTax").value || 0);
-      const deductions = Number(document.getElementById("deductions").value || 0);
-      const credits = Number(document.getElementById("credits").value || 0);
+</script>
 
-      if (!agi && !taxableIncome && !totalTax && !deductions && !credits) {
-        alert("Please enter at least some return values before saving.");
-        return;
-      }
-
-      const effectiveRate = agi > 0 ? (totalTax / agi) * 100 : 0;
-
-      const existingIndex = storedReturns.findIndex(r => r.year === year);
-
-      const newRecord = {
-        year,
-        fileName,
-        agi,
-        taxableIncome,
-        totalTax,
-        deductions,
-        credits,
-        effectiveRate
-      };
-
-      if (existingIndex >= 0) {
-        storedReturns[existingIndex] = newRecord;
-      } else {
-        storedReturns.push(newRecord);
-      }
-
-      storedReturns.sort((a, b) => Number(a.year) - Number(b.year));
-
-      renderAll();
-      clearForm();
-    }
-
-    function clearForm() {
-      document.getElementById("returnFile").value = "";
-      document.getElementById("agi").value = "";
-      document.getElementById("taxableIncome").value = "";
-      document.getElementById("totalTax").value = "";
-      document.getElementById("deductions").value = "";
-      document.getElementById("credits").value = "";
-    }
-
-    function loadSampleData() {
-      storedReturns = [
-        {
-          year: "2021",
-          fileName: "1040_2021.pdf",
-          agi: 52000,
-          taxableIncome: 38500,
-          totalTax: 5200,
-          deductions: 12550,
-          credits: 300,
-          effectiveRate: (5200 / 52000) * 100
-        },
-        {
-          year: "2022",
-          fileName: "1040_2022.pdf",
-          agi: 61000,
-          taxableIncome: 47000,
-          totalTax: 6900,
-          deductions: 12950,
-          credits: 450,
-          effectiveRate: (6900 / 61000) * 100
-        },
-        {
-          year: "2023",
-          fileName: "1040_2023.pdf",
-          agi: 73000,
-          taxableIncome: 58400,
-          totalTax: 9100,
-          deductions: 13850,
-          credits: 700,
-          effectiveRate: (9100 / 73000) * 100
-        },
-        {
-          year: "2024",
-          fileName: "1040_2024.pdf",
-          agi: 86000,
-          taxableIncome: 70300,
-          totalTax: 11600,
-          deductions: 14600,
-          credits: 900,
-          effectiveRate: (11600 / 86000) * 100
-        },
-        {
-          year: "2025",
-          fileName: "1040_2025.pdf",
-          agi: 98000,
-          taxableIncome: 81200,
-          totalTax: 13900,
-          deductions: 15000,
-          credits: 1200,
-          effectiveRate: (13900 / 98000) * 100
-        }
-      ];
-
-      renderAll();
-    }
-
-    function renderReturnGrid() {
-      const grid = document.getElementById("returnGrid");
-
-      if (storedReturns.length === 0) {
-        grid.innerHTML = `
-          <div class="return-card">
-            <div class="return-year">No returns yet</div>
-            <div class="return-meta">Load demo data or save your first return to begin building the dashboard.</div>
-          </div>
-        `;
-        return;
-      }
-
-      grid.innerHTML = storedReturns.map(item => `
-        <div class="return-card">
-          <div class="return-year">${item.year}</div>
-          <div class="return-status status-available">Available</div>
-          <div class="return-meta">
-            <strong>File:</strong> ${item.fileName}<br>
-            <strong>AGI:</strong> ${currency(item.agi)}<br>
-            <strong>Taxable Income:</strong> ${currency(item.taxableIncome)}<br>
-            <strong>Total Tax:</strong> ${currency(item.totalTax)}<br>
-            <strong>Credits:</strong> ${currency(item.credits)}
-          </div>
-        </div>
-      `).join("");
-    }
-
-    function renderMetrics() {
-      document.getElementById("metricReturns").textContent = storedReturns.length;
-
-      if (storedReturns.length === 0) {
-        document.getElementById("metricRate").textContent = "0%";
-        document.getElementById("metricCredits").textContent = "$0";
-        return;
-      }
-
-      const latest = storedReturns[storedReturns.length - 1];
-      const avgRate = storedReturns.reduce((sum, r) => sum + r.effectiveRate, 0) / storedReturns.length;
-      const totalCredits = storedReturns.reduce((sum, r) => sum + r.credits, 0);
-
-      document.getElementById("metricLatest").textContent = latest.year;
-      document.getElementById("metricRate").textContent = percent(avgRate);
-      document.getElementById("metricCredits").textContent = currency(totalCredits);
-    }
-
-    function renderCharts() {
-      const labels = storedReturns.map(r => r.year);
-      const agiData = storedReturns.map(r => r.agi);
-      const taxableData = storedReturns.map(r => r.taxableIncome);
-      const totalTaxData = storedReturns.map(r => r.totalTax);
-      const creditsData = storedReturns.map(r => r.credits);
-
-      if (incomeChart) incomeChart.destroy();
-      if (taxChart) taxChart.destroy();
-
-      const incomeCtx = document.getElementById("incomeChart").getContext("2d");
-      incomeChart = new Chart(incomeCtx, {
-        type: "line",
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: "AGI",
-              data: agiData,
-              borderColor: "#1746a2",
-              backgroundColor: "rgba(23, 70, 162, 0.08)",
-              tension: 0.35,
-              fill: true,
-              borderWidth: 3,
-              pointRadius: 4
-            },
-            {
-              label: "Taxable Income",
-              data: taxableData,
-              borderColor: "#46a27c",
-              backgroundColor: "rgba(70, 162, 124, 0.05)",
-              tension: 0.35,
-              fill: false,
-              borderWidth: 3,
-              pointRadius: 4
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: "bottom"
-            }
-          },
-          scales: {
-            y: {
-              ticks: {
-                callback: function(value) {
-                  return "$" + Number(value).toLocaleString();
-                }
-              }
-            }
-          }
-        }
-      });
-
-      const taxCtx = document.getElementById("taxChart").getContext("2d");
-      taxChart = new Chart(taxCtx, {
-        type: "bar",
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: "Total Tax",
-              data: totalTaxData,
-              backgroundColor: "#1746a2",
-              borderRadius: 8
-            },
-            {
-              label: "Credits",
-              data: creditsData,
-              backgroundColor: "#9bb6f0",
-              borderRadius: 8
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: "bottom"
-            }
-          },
-          scales: {
-            y: {
-              ticks: {
-                callback: function(value) {
-                  return "$" + Number(value).toLocaleString();
-                }
-              }
-            }
-          }
-        }
-      });
-    }
-
-    function renderInsights() {
-      const insights = document.getElementById("insights");
-
-      if (storedReturns.length < 2) {
-        insights.innerHTML = `
-          <div class="insight-card">
-            <div class="insight-title">Not enough history yet</div>
-            <div class="insight-body">
-              Add at least two years of return data to begin generating trend-based tax insights.
-            </div>
-          </div>
-        `;
-        return;
-      }
-
-      const first = storedReturns[0];
-      const latest = storedReturns[storedReturns.length - 1];
-
-      const agiGrowth = first.agi > 0 ? ((latest.agi - first.agi) / first.agi) * 100 : 0;
-      const taxGrowth = first.totalTax > 0 ? ((latest.totalTax - first.totalTax) / first.totalTax) * 100 : 0;
-      const latestRate = latest.effectiveRate;
-      const firstRate = first.effectiveRate;
-      const rateChange = latestRate - firstRate;
-
-      const creditsTotal = storedReturns.reduce((sum, r) => sum + r.credits, 0);
-      const deductionsTotal = storedReturns.reduce((sum, r) => sum + r.deductions, 0);
-
-      insights.innerHTML = `
-        <div class="insight-card">
-          <div class="insight-title">Income trend</div>
-          <div class="insight-body">
-            Your AGI changed by ${percent(agiGrowth)} from ${first.year} to ${latest.year}. Tracking multi-year income movement can help users understand how their tax burden evolves over time.
-          </div>
-        </div>
-
-        <div class="insight-card">
-          <div class="insight-title">Tax burden trend</div>
-          <div class="insight-body">
-            Total tax changed by ${percent(taxGrowth)} over the same period. Your latest effective tax rate is ${percent(latestRate)}, which is ${rateChange >= 0 ? "higher" : "lower"} than your starting period by ${percent(Math.abs(rateChange))}.
-          </div>
-        </div>
-
-        <div class="insight-card">
-          <div class="insight-title">Credits and deductions context</div>
-          <div class="insight-body">
-            Across all recorded returns, total deductions equal ${currency(deductionsTotal)} and total credits equal ${currency(creditsTotal)}. Reviewing both categories together can improve understanding of how tax outcomes are shaped beyond income alone.
-          </div>
-        </div>
-
-        <div class="insight-card">
-          <div class="insight-title">Decision-support perspective</div>
-          <div class="insight-body">
-            Historical return analysis can help individuals identify patterns in income, deductions, credits, and overall tax exposure. This platform is intended to support awareness and understanding rather than provide filing or legal advice.
-          </div>
-        </div>
-      `;
-    }
-
-    function renderAll() {
-      renderReturnGrid();
-      renderMetrics();
-      renderCharts();
-      renderInsights();
-    }
-
-    renderAll();
-  </script>
 </body>
 </html>
