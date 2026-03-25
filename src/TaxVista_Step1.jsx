@@ -2012,7 +2012,7 @@ export default function TaxVista() {
             <div className="tv-drop-title">Upload your tax returns</div>
             <div className="tv-drop-sub">
               Upload Form <em>1040 or 1040NR</em> &middot; PDF only &middot; Up to 5 tax years<br />
-              Include <em>schedules (1, A, B, C, D, etc.)</em> for deeper insights
+              Include <em>any supporting schedules</em> for deeper insights
             </div>
             <button
               className="tv-drop-btn"
