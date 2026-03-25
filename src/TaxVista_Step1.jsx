@@ -2197,7 +2197,7 @@ export default function TaxVista() {
               <div className="tv-sidebar-section">
                 <div className="tv-sidebar-label">Trend Analysis</div>
                 <div className="tv-sidebar-sub">select years to compare</div>
-                {results.map(r => (
+                {[...results].sort((a, b) => b.year - a.year).map(r => (
                   <div
                     key={r.year}
                     className={`tv-year-pill${selectedYears.includes(r.year) ? " on" : ""}`}
@@ -2219,7 +2219,7 @@ export default function TaxVista() {
                   value={verticalYear ?? ""}
                   onChange={e => setVerticalYear(Number(e.target.value))}
                 >
-                  {results.map(r => <option key={r.year} value={r.year}>{r.year}</option>)}
+                  {[...results].sort((a, b) => b.year - a.year).map(r => <option key={r.year} value={r.year}>{r.year}</option>)}
                 </select>
               </div>
               <div className="tv-nav-section">
