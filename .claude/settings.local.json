@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vite:*)",
+      "Bash(node tests/run_synthetic_tests.js)",
+      "Bash(npm run:*)",
+      "Bash(vercel whoami:*)",
+      "Bash(vercel --yes)"
+    ]
+  }
+}

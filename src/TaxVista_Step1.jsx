@@ -2309,7 +2309,7 @@ export default function TaxVista() {
                     <>
                       {/* After-Tax Income Trend (area) */}
                       <div className="tv-chart-block">
-                        <div className="tv-chart-label"><Tip tip="Shows how your income after taxes changes over time.">After-Tax Income Trend</Tip></div>
+                        <div className="tv-chart-label"><Tip tip="How much you kept after taxes — year over year.">After-Tax Income Trend</Tip></div>
                         <div ref={areaChartRef} className="tv-chart-box" style={{ padding: "20px 4px 8px" }}>
                           <ResponsiveContainer width="100%" height={200}>
                             <AreaChart data={hChartData} margin={{ top: 4, right: 28, bottom: 4, left: 8 }} onMouseMove={onChartMove} onMouseLeave={onChartLeave}>
@@ -2399,7 +2399,7 @@ export default function TaxVista() {
 
                       {/* Tax Rate by Year (bar) */}
                       <div className="tv-chart-block">
-                        <div className="tv-chart-label"><Tip tip="Effective Tax Rate = Tax ÷ Taxable Income. Tax/Income = Tax ÷ Gross Income. Gap between bars = deductions at work — wider gap means stronger deductions.">Tax Rate by Year</Tip></div>
+                        <div className="tv-chart-label"><Tip tip="How much of your income went to taxes each year.">Tax Rate by Year</Tip></div>
                         <div ref={barChartRef} className="tv-chart-box" style={{ padding: "20px 4px 8px" }}>
                           <ResponsiveContainer width="100%" height={180}>
                             <BarChart data={hChartData} margin={{ top: 4, right: 28, bottom: 4, left: 8 }} barGap={3} barCategoryGap="32%" onMouseMove={onChartMove} onMouseLeave={onChartLeave}>
@@ -2415,7 +2415,7 @@ export default function TaxVista() {
                                 cursor={{ fill: "rgba(255,255,255,0.03)" }}
                               />
                               <Legend iconType="square" wrapperStyle={{ fontFamily: "Space Mono, monospace", fontSize: 10, paddingTop: 10, color: "#6b7280" }} />
-                              <Bar dataKey="taxRate"          fill="#b85c5c" name="Tax / Income"      radius={[3,3,0,0]} isAnimationActive={false}>
+                              <Bar dataKey="taxRate"          fill="#b85c5c" name="Tax / Gross Income"      radius={[3,3,0,0]} isAnimationActive={false}>
                                 {hChartData.map((entry) => (
                                   <Cell key={entry.year} fill="#b85c5c" fillOpacity={
                                     (activeYear && entry.year !== String(activeYear) ? 0.3 : 1) * metricOpacity("tax")
@@ -2431,6 +2431,10 @@ export default function TaxVista() {
                               </Bar>
                             </BarChart>
                           </ResponsiveContainer>
+                          <div style={{ display: "flex", gap: 16, fontFamily: "var(--mono)", fontSize: 10, color: "var(--muted)", marginTop: 8, justifyContent: "center" }}>
+                            <Tip tip="Tax ÷ taxable income. Lower = more efficient.">Effective Tax Rate ?</Tip>
+                            <Tip tip="Tax ÷ everything you earned. Always lower than ETR.">Tax / Gross Income ?</Tip>
+                          </div>
                         </div>
                       </div>
 
