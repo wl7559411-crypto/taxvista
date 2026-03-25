@@ -1996,6 +1996,8 @@ export default function TaxVista() {
           </h1>
           <p className="tv-subtitle">
             Upload up to 5 years of Form 1040 &rarr; Get your personal Bloomberg Terminal
+            <br />
+            Download your financial story.
           </p>
         </div>
 
