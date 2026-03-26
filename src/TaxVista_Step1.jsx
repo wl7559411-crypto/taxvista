@@ -1156,6 +1156,26 @@ const styles = `
   }
   .tv-wiz-year-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
+  /* ── Print modal ── */
+  .tv-print-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10000;
+  }
+  .tv-print-modal {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 28px 32px; max-width: 420px;
+    text-align: center;
+  }
+  .tv-print-modal h3 {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    letter-spacing: 0.06em; color: var(--accent); margin-bottom: 14px;
+  }
+  .tv-print-modal p {
+    font-size: 13px; color: var(--text); line-height: 1.7; margin-bottom: 20px;
+  }
+  .tv-print-modal-actions { display: flex; gap: 10px; justify-content: center; }
+
   /* ── Print report (hidden on screen, shown exclusively in @media print) ── */
   .tv-print-report { display: none; }
 
@@ -1163,6 +1183,7 @@ const styles = `
     @page { margin: 18mm 16mm; size: A4 portrait; }
 
     .tv-root > *:not(.tv-print-report) { display: none !important; }
+    .tv-print-modal-overlay { display: none !important; }
     body { background: white !important; margin: 0 !important; padding: 0 !important; }
 
     .tv-print-report {
@@ -1984,13 +2005,20 @@ export default function TaxVista() {
     return { years, cagr, phase, note, characteristics, implication };
   })();
 
+  const [showPrintModal, setShowPrintModal] = useState(false);
+  const pendingPrintName = useRef("");
+
   // ── PDF export with dynamic filename via document.title ──
   const handleExport = () => {
     const name = prompt("Enter your name for this report:");
     if (!name || !name.trim()) return;
+    pendingPrintName.current = name.trim();
     setReportName(name.trim());
+    setShowPrintModal(true);
+  };
 
-    // Use setTimeout so React flushes the reportName into the print DOM
+  const handleConfirmPrint = () => {
+    setShowPrintModal(false);
     setTimeout(() => {
     const latestM = _tdN ? metricMap[_tdN.year] : null;
 
@@ -2141,6 +2169,23 @@ export default function TaxVista() {
   return (
     <>
       <style>{styles}</style>
+
+      {/* Print instruction modal */}
+      {showPrintModal && (
+        <div className="tv-print-modal-overlay" onClick={() => setShowPrintModal(false)}>
+          <div className="tv-print-modal" onClick={e => e.stopPropagation()}>
+            <h3>Before Printing</h3>
+            <p>
+              In the print dialog, set <strong>Headers and Footers</strong> to <strong>None</strong> (or Off) for a clean report without the URL and timestamp on every page.
+            </p>
+            <div className="tv-print-modal-actions">
+              <button className="tv-wiz-back" onClick={() => setShowPrintModal(false)}>Cancel</button>
+              <button className="tv-wiz-next" onClick={handleConfirmPrint}>Got it, Print</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="tv-root">
 
         {/* ── Header ── */}
