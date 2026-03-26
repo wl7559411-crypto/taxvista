@@ -2437,9 +2437,11 @@ export default function TaxVista() {
 
               {/* Export */}
               <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 4 }}>
-                <button className="tv-export-btn" onClick={handleExport}>
-                  ↓ Download Full Report
-                </button>
+                <Tip tip="In the print dialog, set 'Headers and Footers' to None for best results.">
+                  <button className="tv-export-btn" onClick={handleExport}>
+                    ↓ Download Full Report
+                  </button>
+                </Tip>
               </div>
 
               {/* Overview */}
@@ -2920,23 +2922,32 @@ export default function TaxVista() {
             if (incs.length >= 3) { const yoy = incs.slice(1).map((v, i) => `${_sorted[i].year}→${_sorted[i+1].year}: ${((v - incs[i]) / incs[i] * 100).toFixed(0)}%`).join("; "); _incomeBullets.push(`Year-over-year: ${yoy}.`); }
           } else if (_first.summary?.totalIncome) _incomeBullets.push(`Single-year gross income: ${_fmtD(_first.summary.totalIncome)}.`);
 
-          // Tax trend
-          if (_multi) { _sorted.forEach(r => { const m = metricMap[r.year]; if (m?.effectiveTaxRate != null) { const e = m.effectiveTaxRate; _taxBullets.push(`${r.year}: Effective tax rate ${_fmtP(e)}. ${e > 0.25 ? "High burden — wage-heavy in upper brackets." : e > 0.15 ? "Moderate burden." : e > 0.05 ? "Low effective rate." : "Near-zero rate."}`); } }); if (taxRateDelta != null) { if (taxRateDelta > 0.02) _taxBullets.push(`Rate increased ${(taxRateDelta * 100).toFixed(1)}pp${_lb ? " — driven by income entering taxable brackets from near-zero base." : " — income outpacing deduction scaling."}`); else if (taxRateDelta < -0.02) _taxBullets.push(`Rate decreased ${Math.abs(taxRateDelta * 100).toFixed(1)}pp — favorable shift.`); else _taxBullets.push(`Rate stable (${(taxRateDelta * 100).toFixed(1)}pp change).`); } }
-          else if (_mFirst?.effectiveTaxRate != null) _taxBullets.push(`Effective tax rate: ${_fmtP(_mFirst.effectiveTaxRate)}.`);
+          // Tax trend (condensed: range + delta, not per-year)
+          if (_multi) {
+            const etrVals = _sorted.map(r => ({ y: r.year, e: metricMap[r.year]?.effectiveTaxRate })).filter(x => x.e != null);
+            if (etrVals.length >= 2) _taxBullets.push(`Effective tax rate: ${_fmtP(etrVals[0].e)} (${etrVals[0].y}) → ${_fmtP(etrVals[etrVals.length-1].e)} (${etrVals[etrVals.length-1].y}). ${etrVals[etrVals.length-1].e > 0.25 ? "Current rate is high — wage-heavy in upper brackets." : etrVals[etrVals.length-1].e > 0.15 ? "Moderate burden at current level." : "Current rate is relatively low."}`);
+            if (taxRateDelta != null) { if (taxRateDelta > 0.02) _taxBullets.push(`Rate increased ${(taxRateDelta * 100).toFixed(1)}pp${_lb ? " — driven by income entering taxable brackets from near-zero base." : " — income outpacing deduction scaling."}`); else if (taxRateDelta < -0.02) _taxBullets.push(`Rate decreased ${Math.abs(taxRateDelta * 100).toFixed(1)}pp — favorable shift.`); else _taxBullets.push(`Rate stable (${(taxRateDelta * 100).toFixed(1)}pp change).`); }
+          } else if (_mFirst?.effectiveTaxRate != null) _taxBullets.push(`Effective tax rate: ${_fmtP(_mFirst.effectiveTaxRate)}.`);
 
           // Tax drag
           if (_multi) { const fa = _mFirst?.afterTaxIncome, la = _mLast?.afterTaxIncome, fi2 = _first.summary?.totalIncome, li2 = _last.summary?.totalIncome; if (fa && la && fi2 && li2 && fi2 > 0 && fa > 0) { const id = li2 - fi2, ad = la - fa; if (id > 0) { const mr = (id - ad) / id; _dragBullets.push(`Over ${_first.year}–${_last.year}: income +${_fmtD(id)}, after-tax +${_fmtD(ad)}. Taxes absorbed ${_fmtD(id - ad)}.`); _dragBullets.push(`Per $1.00 earned: $${mr.toFixed(2)} to taxes, $${(1 - mr).toFixed(2)} retained (${(mr * 100).toFixed(0)}% absorption rate).`); } } const ms = _sorted.map(r => ({ y: r.year, m: metricMap[r.year]?.afterTaxMargin })).filter(x => x.m != null); if (ms.length >= 2) { const d = ms[ms.length-1].m - ms[0].m; if (Math.abs(d) > 0.02) _dragBullets.push(`After-tax margin ${d > 0 ? "improved" : "declined"} from ${_fmtP(ms[0].m)} to ${_fmtP(ms[ms.length-1].m)}.`); } }
 
-          // After-tax
-          if (_multi) { if (_mFirst?.afterTaxIncome && _mLast?.afterTaxIncome) _afterTaxBullets.push(`After-tax: ${_fmtD(_mFirst.afterTaxIncome)} (${_first.year}) → ${_fmtD(_mLast.afterTaxIncome)} (${_last.year}).`); _sorted.forEach(r => { const m = metricMap[r.year]; if (m?.afterTaxMargin != null) _afterTaxBullets.push(`${r.year}: Retained ${_fmtP(m.afterTaxMargin)} (${_fmtD(m.afterTaxIncome)} of ${_fmtD(r.summary?.totalIncome)}).`); }); }
-          else if (_mFirst?.afterTaxIncome != null) _afterTaxBullets.push(`After-tax income: ${_fmtD(_mFirst.afterTaxIncome)}, margin: ${_fmtP(_mFirst.afterTaxMargin)}.`);
+          // After-tax (condensed: first→last + latest margin only)
+          if (_multi) {
+            if (_mFirst?.afterTaxIncome && _mLast?.afterTaxIncome) _afterTaxBullets.push(`After-tax income: ${_fmtD(_mFirst.afterTaxIncome)} (${_first.year}) → ${_fmtD(_mLast.afterTaxIncome)} (${_last.year}).`);
+            if (_mLast?.afterTaxMargin != null) _afterTaxBullets.push(`${_last.year} retention: ${_fmtP(_mLast.afterTaxMargin)} of gross income kept after tax — ${_mLast.afterTaxMargin > 0.85 ? "strong" : _mLast.afterTaxMargin > 0.7 ? "moderate" : "significant tax drag"}.`);
+          } else if (_mFirst?.afterTaxIncome != null) _afterTaxBullets.push(`After-tax income: ${_fmtD(_mFirst.afterTaxIncome)}, margin: ${_fmtP(_mFirst.afterTaxMargin)}.`);
 
-          // Composition
-          _sorted.forEach(r => { const v = _incOf(r); const t = v.wages + v.capitalGains + v.dividends + v.interest + v.other; if (t <= 0) return; const w = v.wages / t; if (w >= 0.95) _compBullets.push(`${r.year}: Entirely W-2 wages — ordinary rates apply.`); else if (w >= 0.8) _compBullets.push(`${r.year}: ${(w*100).toFixed(0)}% wages, ${((1-w)*100).toFixed(0)}% investment.`); else _compBullets.push(`${r.year}: Mixed — ${(w*100).toFixed(0)}% wages, ${((1-w)*100).toFixed(0)}% investment/other.`); });
+          // Composition (condensed: latest year only + trend note if multi)
+          {
+            const vLast = _incOf(_last); const tLast = vLast.wages + vLast.capitalGains + vLast.dividends + vLast.interest + vLast.other;
+            if (tLast > 0) { const wL = vLast.wages / tLast; _compBullets.push(`${_last.year}: ${wL >= 0.95 ? "Entirely W-2 wages — ordinary rates apply" : wL >= 0.8 ? `${(wL*100).toFixed(0)}% wages, ${((1-wL)*100).toFixed(0)}% investment` : `Mixed — ${(wL*100).toFixed(0)}% wages, ${((1-wL)*100).toFixed(0)}% investment/other`}.`); }
+            if (_multi) { const vF = _incOf(_first); const tF = vF.wages + vF.capitalGains + vF.dividends + vF.interest + vF.other; if (tF > 0 && tLast > 0) { const wF = vF.wages / tF; const wL2 = vLast.wages / tLast; if (Math.abs(wL2 - wF) > 0.05) _compBullets.push(`Wage concentration ${wL2 > wF ? "increased" : "decreased"} from ${(wF*100).toFixed(0)}% to ${(wL2*100).toFixed(0)}% over the period.`); else if (wL2 >= 0.95 && wF >= 0.95) _compBullets.push("Income remains fully W-2 across all years — limited tax flexibility."); } }
+          }
 
-          // Deductions
-          _sorted.forEach(r => { const m = metricMap[r.year]; if (m?.deductionEfficiency != null) { const d = m.deductionEfficiency; _dedBullets.push(`${r.year}: ${_fmtP(d)} — ${d > 0.2 ? "strong sheltering" : d > 0.1 ? "moderate, room to increase" : "low, pre-tax accounts are primary lever"}.`); } });
-          if (_multi && _mFirst?.deductionEfficiency != null && _mLast?.deductionEfficiency != null) { const d = _mLast.deductionEfficiency - _mFirst.deductionEfficiency; if (Math.abs(d) > 0.03) _dedBullets.push(`Efficiency ${d > 0 ? "improved" : "declined"} by ${Math.abs(d * 100).toFixed(1)}pp.`); }
+          // Deductions (condensed: latest + trend delta only)
+          if (_mLast?.deductionEfficiency != null) { const d = _mLast.deductionEfficiency; _dedBullets.push(`${_last.year}: ${_fmtP(d)} of gross income offset by deductions — ${d > 0.2 ? "strong sheltering" : d > 0.1 ? "moderate, room to increase" : "low, pre-tax accounts are primary lever"}.`); }
+          if (_multi && _mFirst?.deductionEfficiency != null && _mLast?.deductionEfficiency != null) { const d = _mLast.deductionEfficiency - _mFirst.deductionEfficiency; if (Math.abs(d) > 0.03) _dedBullets.push(`Efficiency ${d > 0 ? "improved" : "declined"} by ${Math.abs(d * 100).toFixed(1)}pp over ${_first.year}–${_last.year}.`); }
 
           // Summary
           if (_multi) { if (_lb && incomeCagr != null && incomeCagr > 0.1 && taxRateDelta != null && taxRateDelta > 0.03) _summaryBullets.push("Income transitioned from minimal base into taxable territory. Window for establishing tax-efficient habits is now."); else if (incomeCagr != null && incomeCagr > 0.1 && taxRateDelta != null && taxRateDelta > 0.03) _summaryBullets.push("Income growing aggressively but tax burden growing disproportionately."); else if (incomeCagr != null && incomeCagr < 0) _summaryBullets.push("Income contracting — shift to defensive optimization."); if (_mLast?.deductionEfficiency != null && _mLast.deductionEfficiency < 0.08) _summaryBullets.push(`Deduction efficiency of ${_fmtP(_mLast.deductionEfficiency)} is the single largest optimization opportunity.`); if (_mLast?.afterTaxMargin != null) _summaryBullets.push(`Retention: ${_fmtP(_mLast.afterTaxMargin)} — $${(_mLast.afterTaxMargin).toFixed(2)} kept per $1.00 earned.`); }
@@ -3024,9 +3035,7 @@ export default function TaxVista() {
 
             {_lb && <div style={{ fontSize: "8pt", color: "#888", paddingTop: "6pt", borderTop: "1pt solid #ddd", lineHeight: 1.5, marginBottom: "8pt" }}>* Low base: {trendData[0]?.year} income ${Math.round(trendData[0]?.totalIncome ?? 0).toLocaleString()} is below $10,000 — percentage growth rates suppressed.</div>}
 
-            <div className="tv-pr-page-break" />
-
-            {/* ════════════ PAGE 2 — HORIZONTAL ANALYSIS ════════════ */}
+            {/* ════════════ HORIZONTAL ANALYSIS (continues on same page) ════════════ */}
             <div className="tv-pr-section-title" style={{ fontSize: "10pt", marginBottom: "16pt" }}>How Your Numbers Have Changed Over Time</div>
 
             {/* Multi-Year Table */}
