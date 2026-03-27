@@ -3249,6 +3249,29 @@ export default function TaxVista() {
               </div>
             )}
 
+            {/* Beyond Your Tax Return */}
+            <div className="tv-pr-section" style={{ marginTop: "28pt" }}>
+              <div className="tv-pr-section-title">Beyond Your Tax Return</div>
+              <div className="tv-pr-insight-text" style={{ marginBottom: "10pt" }}>
+                Your 1040 captures what was taxed — not your complete financial picture. Here are five areas this report does not reflect:
+              </div>
+              {[
+                { title: "Unrealized Investment Gains or Losses", text: "If your portfolio dropped but you didn't sell, that loss isn't on your tax return. Your actual financial position may be better or worse than this report suggests." },
+                { title: "Asset Value Changes", text: "Home appreciation, business value, or other assets growing in value don't appear here until sold. Your net worth may have changed significantly without affecting your tax return." },
+                { title: "Future or Deferred Income", text: "Pending bonuses, stock vesting, or deferred compensation aren't captured. Next year's tax picture could look very different." },
+                { title: "Tax Strategies Not Yet Applied", text: "This report shows what you paid — not what you could have paid with optimized contributions, tax-loss harvesting, or timing strategies." },
+                { title: "One-Time Events", text: "An unusual year (large capital gain, job change, inheritance) can distort multi-year trends. Check if any single event is skewing your trajectory." },
+              ].map((item, i) => (
+                <div key={i} style={{ marginBottom: "8pt" }}>
+                  <div className="tv-pr-insight-text" style={{ fontWeight: 700 }}>{i + 1}. {item.title}</div>
+                  <div className="tv-pr-insight-text" style={{ paddingLeft: "14pt", color: "#444" }}>{item.text}</div>
+                </div>
+              ))}
+              <div style={{ borderTop: "1pt solid #ccc", marginTop: "14pt", paddingTop: "10pt", fontSize: "8pt", color: "#999", textAlign: "center", lineHeight: 1.6 }}>
+                This report is based solely on filed tax return data.<br />It is not financial or tax advice.
+              </div>
+            </div>
+
             <div className="tv-pr-footer">
               TaxVista Financial Intelligence
               {" · "}Generated from your tax data — no documents stored
