@@ -3061,21 +3061,24 @@ export default function TaxVista() {
                   <div className="tv-iblock" style={{ borderColor: "var(--border)" }}>
                     <div className="tv-iblock-title">Caveats</div>
                     <p style={{ color: "var(--muted)", fontSize: 12, marginBottom: 14, lineHeight: 1.7 }}>
-                      Your 1040 captures what was taxed — not your complete financial picture. Here are five areas this report does not reflect:
+                      Your tax return (Form 1040) shows what was taxed — not your full financial picture. Here are a few things it doesn't fully capture:
                     </p>
                     {[
-                      { title: "Unrealized Investment Gains or Losses", text: "If your portfolio dropped but you didn't sell, that loss isn't on your tax return. Your actual financial position may be better or worse than this report suggests." },
-                      { title: "Asset Value Changes", text: "Home appreciation, business value, or other assets growing in value don't appear here until sold. Your net worth may have changed significantly without affecting your tax return." },
-                      { title: "Future or Deferred Income", text: "Pending bonuses, stock vesting, or deferred compensation aren't captured. Next year's tax picture could look very different." },
-                      { title: "Tax Strategies Not Yet Applied", text: "This report shows what you paid — not what you could have paid with optimized contributions, tax-loss harvesting, or timing strategies." },
-                      { title: "One-Time Events", text: "An unusual year (large capital gain, job change, inheritance) can distort multi-year trends. Check if any single event is skewing your trajectory." },
+                      { title: "Investments you didn't sell", text: "If your investments went up or down but you didn't sell them, it won't show here. Your real financial situation could be better — or worse — than this report suggests." },
+                      { title: "Changes in your overall wealth", text: "Things like your home increasing in value or your business growing are not included. Your net worth may have changed without showing up on your tax return." },
+                      { title: "Income you haven't received yet", text: "Future bonuses, stock vesting, or deferred pay aren't included. Next year could look very different." },
+                      { title: "Missed opportunities to lower taxes", text: "This report shows what you paid — not what you could have saved. Things like retirement contributions or tax strategies may reduce your taxes but aren't visible here." },
+                      { title: "One-time events", text: "A big gain, job change, or unusual income can make one year look very different. It may not reflect your normal situation." },
                     ].map((item, i) => (
                       <div key={i} style={{ marginBottom: 10 }}>
                         <p style={{ fontWeight: 700, fontSize: 12, color: "var(--text)", marginBottom: 2 }}>{i + 1}. {item.title}</p>
                         <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.65, paddingLeft: 16 }}>{item.text}</p>
                       </div>
                     ))}
-                    <p style={{ fontSize: 10, color: "var(--muted)", textAlign: "center", marginTop: 14, borderTop: "1px solid var(--border)", paddingTop: 10, lineHeight: 1.6 }}>
+                    <p style={{ color: "var(--accent)", fontSize: 13, textAlign: "center", marginTop: 16, fontFamily: "var(--mono)", fontWeight: 500 }}>
+                      Think of this as a snapshot — not the full story of your finances.
+                    </p>
+                    <p style={{ fontSize: 10, color: "var(--muted)", textAlign: "center", marginTop: 10, borderTop: "1px solid var(--border)", paddingTop: 10, lineHeight: 1.6 }}>
                       This report is based solely on filed tax return data.<br />It is not financial or tax advice.
                     </p>
                   </div>
@@ -3454,21 +3457,24 @@ export default function TaxVista() {
             <div className="tv-pr-section" style={{ marginTop: "28pt" }}>
               <div className="tv-pr-section-title">Caveats</div>
               <div className="tv-pr-insight-text" style={{ marginBottom: "10pt" }}>
-                Your 1040 captures what was taxed — not your complete financial picture. Here are five areas this report does not reflect:
+                Your tax return (Form 1040) shows what was taxed — not your full financial picture. Here are a few things it doesn't fully capture:
               </div>
               {[
-                { title: "Unrealized Investment Gains or Losses", text: "If your portfolio dropped but you didn't sell, that loss isn't on your tax return. Your actual financial position may be better or worse than this report suggests." },
-                { title: "Asset Value Changes", text: "Home appreciation, business value, or other assets growing in value don't appear here until sold. Your net worth may have changed significantly without affecting your tax return." },
-                { title: "Future or Deferred Income", text: "Pending bonuses, stock vesting, or deferred compensation aren't captured. Next year's tax picture could look very different." },
-                { title: "Tax Strategies Not Yet Applied", text: "This report shows what you paid — not what you could have paid with optimized contributions, tax-loss harvesting, or timing strategies." },
-                { title: "One-Time Events", text: "An unusual year (large capital gain, job change, inheritance) can distort multi-year trends. Check if any single event is skewing your trajectory." },
+                { title: "Investments you didn't sell", text: "If your investments went up or down but you didn't sell them, it won't show here. Your real financial situation could be better — or worse — than this report suggests." },
+                { title: "Changes in your overall wealth", text: "Things like your home increasing in value or your business growing are not included. Your net worth may have changed without showing up on your tax return." },
+                { title: "Income you haven't received yet", text: "Future bonuses, stock vesting, or deferred pay aren't included. Next year could look very different." },
+                { title: "Missed opportunities to lower taxes", text: "This report shows what you paid — not what you could have saved. Things like retirement contributions or tax strategies may reduce your taxes but aren't visible here." },
+                { title: "One-time events", text: "A big gain, job change, or unusual income can make one year look very different. It may not reflect your normal situation." },
               ].map((item, i) => (
                 <div key={i} style={{ marginBottom: "8pt" }}>
                   <div className="tv-pr-insight-text" style={{ fontWeight: 700 }}>{i + 1}. {item.title}</div>
                   <div className="tv-pr-insight-text" style={{ paddingLeft: "14pt", color: "#444" }}>{item.text}</div>
                 </div>
               ))}
-              <div style={{ borderTop: "1pt solid #ccc", marginTop: "14pt", paddingTop: "10pt", fontSize: "8pt", color: "#999", textAlign: "center", lineHeight: 1.6 }}>
+              <div className="tv-pr-insight-text" style={{ textAlign: "center", fontWeight: 600, fontStyle: "italic", marginTop: "14pt" }}>
+                Think of this as a snapshot — not the full story of your finances.
+              </div>
+              <div style={{ borderTop: "1pt solid #ccc", marginTop: "10pt", paddingTop: "10pt", fontSize: "8pt", color: "#999", textAlign: "center", lineHeight: 1.6 }}>
                 This report is based solely on filed tax return data.<br />It is not financial or tax advice.
               </div>
             </div>
