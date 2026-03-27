@@ -804,6 +804,17 @@ const styles = `
     align-items: center;
     justify-content: space-between;
   }
+  /* ── No text selection on dashboard chrome ── */
+  .tv-strategy-bar,
+  .tv-strategy-text,
+  .tv-iblock,
+  .tv-iblock p,
+  .tv-insight-sentence,
+  .tv-canvas-title {
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: default;
+  }
   /* ── Metric grid (Overview) ── */
   .tv-metric-grid {
     display: grid;
