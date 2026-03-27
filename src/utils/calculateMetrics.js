@@ -113,6 +113,13 @@ function generateInsights({ agiRatio, effectiveTaxRate, deductionEfficiency, aft
     else                            signals.margin = { label: "High tax drag",       level: "low"  };
   }
 
+  // Override positive signal tags when false signal is CRITICAL or HIGH
+  if (primarySignal && (primarySignal.severity === "CRITICAL" || primarySignal.severity === "HIGH")) {
+    if (signals.tax?.level === "high")      signals.tax       = { label: "\u26A0 Loss-driven",   level: "low" };
+    if (signals.deduction?.level === "high") signals.deduction = { label: "\u26A0 Income-driven", level: "low" };
+    if (signals.margin?.level === "high")   signals.margin    = { label: "\u26A0 Contraction",   level: "low" };
+  }
+
   const summary = buildSummary({ ...signals, effectiveTaxRate, deductionEfficiency, afterTaxMargin, hasCapitalLoss, isLossDriven, primarySignal }, compare);
 
   return { signals, summary };
