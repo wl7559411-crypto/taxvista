@@ -1681,6 +1681,11 @@ export default function TaxVista() {
       }
       computedMetrics.push(calculateMetrics(collected[i], Object.keys(compare).length > 0 ? compare : undefined));
     }
+    console.log("[TaxVista] False Signal Detection:", computedMetrics.map((m, i) => ({
+      year: collected[i]?.year,
+      primarySignal: m.primarySignal,
+      falseSignals: m.falseSignals,
+    })));
     setResults(collected);
     setMetrics(computedMetrics);
     const years = collected.map(r => r.year);
