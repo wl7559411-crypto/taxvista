@@ -3047,9 +3047,9 @@ export default function TaxVista() {
                       );
                     })}
 
-                    {/* Beyond Your Tax Return */}
+                    {/* Caveats */}
                     <div className="tv-iblock" style={{ marginTop: 12, borderColor: "var(--border)" }}>
-                      <div className="tv-iblock-title">Beyond Your Tax Return</div>
+                      <div className="tv-iblock-title">Caveats</div>
                       <p style={{ color: "var(--muted)", fontSize: 12, marginBottom: 14, lineHeight: 1.7 }}>
                         Your 1040 captures what was taxed — not your complete financial picture. Here are five areas this report does not reflect:
                       </p>
@@ -3441,9 +3441,9 @@ export default function TaxVista() {
               </div>
             )}
 
-            {/* Beyond Your Tax Return */}
+            {/* Caveats */}
             <div className="tv-pr-section" style={{ marginTop: "28pt" }}>
-              <div className="tv-pr-section-title">Beyond Your Tax Return</div>
+              <div className="tv-pr-section-title">Caveats</div>
               <div className="tv-pr-insight-text" style={{ marginBottom: "10pt" }}>
                 Your 1040 captures what was taxed — not your complete financial picture. Here are five areas this report does not reflect:
               </div>
