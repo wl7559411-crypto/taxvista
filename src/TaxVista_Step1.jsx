@@ -227,9 +227,10 @@ const styles = `
     box-shadow: 0 4px 14px rgba(0,0,0,0.5);
     border: 1px solid rgba(255,255,255,0.08);
     z-index: 9999;
-    animation: tvTipIn 0.15s ease;
+    will-change: transform;
+    transform: translate(-50%, -100%) translateZ(0);
+    opacity: 1;
   }
-  @keyframes tvTipIn { from { opacity: 0; } to { opacity: 1; } }
 
   /* ── Privacy notice ── */
   .tv-privacy {
@@ -1463,22 +1464,31 @@ function fmtInput(v) {
 function Tip({ children, tip }) {
   const [coords, setCoords] = useState(null);
   const ref = useRef(null);
+  const rafRef = useRef(null);
 
   const show = () => {
-    if (!ref.current) return;
-    const r = ref.current.getBoundingClientRect();
-    // Centre above the element, clamp so it stays inside the viewport
-    const x = Math.min(Math.max(r.left + r.width / 2, 124), window.innerWidth - 124);
-    setCoords({ x, y: r.top - 10 });
+    if (rafRef.current) return; // already scheduled
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      if (!ref.current) return;
+      const r = ref.current.getBoundingClientRect();
+      const x = Math.min(Math.max(r.left + r.width / 2, 124), window.innerWidth - 124);
+      setCoords({ x, y: r.top - 10 });
+    });
+  };
+
+  const hide = () => {
+    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+    setCoords(null);
   };
 
   return (
-    <span className="tv-tip" ref={ref} onMouseEnter={show} onMouseLeave={() => setCoords(null)}>
+    <span className="tv-tip" ref={ref} onMouseEnter={show} onMouseLeave={hide}>
       {children}
       {coords && (
         <span
           className="tv-tip-box"
-          style={{ left: coords.x, top: coords.y, transform: "translate(-50%, -100%)" }}
+          style={{ left: coords.x, top: coords.y }}
         >
           {tip}
         </span>
