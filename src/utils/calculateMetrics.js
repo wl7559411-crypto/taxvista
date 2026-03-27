@@ -33,7 +33,35 @@ export function calculateMetrics(data, compare) {
   const cg = income.capitalGains ?? 0;
   const hasCapitalLoss = cg < 0;
   const isLossDriven = cg < 0 && totalIncome > 0 && Math.abs(cg) > totalIncome * 0.10;
-  const insights = generateInsights({ agiRatio, effectiveTaxRate, deductionEfficiency, afterTaxMargin, hasCapitalLoss, isLossDriven }, compare);
+
+  // === FALSE SIGNAL DETECTION ===
+  const c = compare || {};
+  const priorIncome = c.priorIncome ?? null;
+  const incomeYoY = priorIncome ? (totalIncome - priorIncome) / priorIncome : null;
+  const etrYoY = c.priorETR != null && effectiveTaxRate != null ? effectiveTaxRate - c.priorETR : null;
+  const deductionYoY = c.priorDE != null && deductionEfficiency != null ? deductionEfficiency - c.priorDE : null;
+
+  const falseSignals = [];
+  if (etrYoY != null && etrYoY < -0.02 && incomeYoY != null && incomeYoY < -0.10) {
+    falseSignals.push({ flag: "FALSE_EFFICIENCY", severity: "HIGH", override: "Tax efficiency appears improved, but is primarily driven by reduced income, not structural optimization." });
+  }
+  if (cg < 0 && totalIncome > 0 && Math.abs(cg) > totalIncome * 0.10 && etrYoY != null && etrYoY < 0) {
+    falseSignals.push({ flag: "LOSS_DISTORTION", severity: "HIGH", override: "Lower tax burden is partially driven by realized losses, which may not reflect sustainable tax efficiency." });
+  }
+  if (incomeYoY != null && incomeYoY < -0.30) {
+    falseSignals.push({ flag: "INCOME_COLLAPSE", severity: "CRITICAL", override: "Income has declined significantly. Tax metrics may appear improved but reflect contraction, not optimization." });
+  }
+  if (deductionYoY != null && deductionYoY > 0.03 && incomeYoY != null && incomeYoY < -0.10) {
+    falseSignals.push({ flag: "DEDUCTION_ILLUSION", severity: "MEDIUM", override: "Higher deduction ratios are influenced by lower income, not necessarily increased tax planning activity." });
+  }
+  if (incomeYoY != null && incomeYoY > 0.05 && etrYoY != null && etrYoY < -0.01 && deductionYoY != null && deductionYoY > 0.01) {
+    falseSignals.push({ flag: "TRUE_OPTIMIZATION", severity: "POSITIVE", override: "Tax efficiency improved alongside income growth — indicates effective tax structuring." });
+  }
+  const priorityOrder = ["CRITICAL", "HIGH", "MEDIUM", "POSITIVE"];
+  falseSignals.sort((a, b) => priorityOrder.indexOf(a.severity) - priorityOrder.indexOf(b.severity));
+  const primarySignal = falseSignals[0] ?? null;
+
+  const insights = generateInsights({ agiRatio, effectiveTaxRate, deductionEfficiency, afterTaxMargin, hasCapitalLoss, isLossDriven, primarySignal }, compare);
 
   return {
     incomeBreakdown: {
@@ -52,11 +80,13 @@ export function calculateMetrics(data, compare) {
     deductionEfficiency,
     afterTaxMargin,
     isLossDriven,
+    falseSignals,
+    primarySignal,
     insights,
   };
 }
 
-function generateInsights({ agiRatio, effectiveTaxRate, deductionEfficiency, afterTaxMargin, hasCapitalLoss, isLossDriven }, compare) {
+function generateInsights({ agiRatio, effectiveTaxRate, deductionEfficiency, afterTaxMargin, hasCapitalLoss, isLossDriven, primarySignal }, compare) {
   const signals = { agi: null, tax: null, deduction: null, margin: null };
 
   if (agiRatio != null) {
@@ -83,18 +113,20 @@ function generateInsights({ agiRatio, effectiveTaxRate, deductionEfficiency, aft
     else                            signals.margin = { label: "High tax drag",       level: "low"  };
   }
 
-  const summary = buildSummary({ ...signals, effectiveTaxRate, deductionEfficiency, afterTaxMargin, hasCapitalLoss, isLossDriven }, compare);
+  const summary = buildSummary({ ...signals, effectiveTaxRate, deductionEfficiency, afterTaxMargin, hasCapitalLoss, isLossDriven, primarySignal }, compare);
 
   return { signals, summary };
 }
 
 // compare: optional { priorETR, avgETR, priorDE, avgDE, priorATM } for cross-year context
-function buildSummary({ agi, tax, deduction, margin, effectiveTaxRate, deductionEfficiency, afterTaxMargin, hasCapitalLoss, isLossDriven }, compare) {
+function buildSummary({ agi, tax, deduction, margin, effectiveTaxRate, deductionEfficiency, afterTaxMargin, hasCapitalLoss, isLossDriven, primarySignal }, compare) {
   const items = [];
   const c = compare || {};
 
-  // Loss-driven caveat — must appear first when applicable
-  if (isLossDriven && effectiveTaxRate != null && afterTaxMargin != null) {
+  // False signal override — must appear first when severity is CRITICAL or HIGH
+  if (primarySignal && (primarySignal.severity === "CRITICAL" || primarySignal.severity === "HIGH")) {
+    items.push({ text: primarySignal.override, metric: "etr" });
+  } else if (isLossDriven && effectiveTaxRate != null && afterTaxMargin != null) {
     items.push({ text: `Tax reduction was primarily driven by capital losses — not by structural optimization. Effective tax rate: ${(effectiveTaxRate * 100).toFixed(1)}%, retaining ${(afterTaxMargin * 100).toFixed(1)}% of total income after tax.`, metric: "etr" });
   }
 

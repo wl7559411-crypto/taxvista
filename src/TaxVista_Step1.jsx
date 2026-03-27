@@ -1667,9 +1667,10 @@ export default function TaxVista() {
     for (let i = 0; i < collected.length; i++) {
       const compare = {};
       if (i > 0 && computedMetrics[i - 1]) {
-        compare.priorETR = computedMetrics[i - 1].effectiveTaxRate;
-        compare.priorDE  = computedMetrics[i - 1].deductionEfficiency;
-        compare.priorATM = computedMetrics[i - 1].afterTaxMargin;
+        compare.priorETR    = computedMetrics[i - 1].effectiveTaxRate;
+        compare.priorDE     = computedMetrics[i - 1].deductionEfficiency;
+        compare.priorATM    = computedMetrics[i - 1].afterTaxMargin;
+        compare.priorIncome = collected[i - 1].summary?.totalIncome ?? null;
       }
       const prev = computedMetrics.slice(0, i);
       if (prev.length > 0) {
@@ -2135,9 +2136,10 @@ export default function TaxVista() {
     const etrPrior  = mPrior?.effectiveTaxRate ?? null;
     const etrDelta  = etr != null && etrPrior != null ? etr - etrPrior : null;
     const etrRising = etrDelta != null && etrDelta > 0.015;
-    const _isLD = m.isLossDriven;
+    const _ps = m.primarySignal;
+    const _psOverride = _ps && (_ps.severity === "CRITICAL" || _ps.severity === "HIGH");
     const etrLabel  = etr == null ? null
-      : _isLD ? "low tax burden (loss-driven, not structural optimization)"
+      : _psOverride ? _ps.override
       : etr > 0.25 ? "high tax burden relative to income"
       : etr > 0.15 ? "moderate burden, optimization possible"
       : etr > 0.05 ? "low burden, favorable structure"
@@ -2442,7 +2444,15 @@ export default function TaxVista() {
             {/* ── Strategy Detected bar ── */}
             {strategyPhase && (
               <div className="tv-strategy-bar">
-                <span className="tv-strategy-badge">{resolvedActiveYear && metricMap[resolvedActiveYear]?.isLossDriven ? "Event Detected" : "Strategy Detected"}</span>
+                <span className="tv-strategy-badge">{(() => {
+                  const ps = resolvedActiveYear && metricMap[resolvedActiveYear]?.primarySignal;
+                  if (!ps) return "Strategy Detected";
+                  if (ps.severity === "CRITICAL") return "\u26A0 Income Alert";
+                  if (ps.severity === "HIGH") return "\u26A0 Signal Distorted";
+                  if (ps.severity === "MEDIUM") return "\u26A0 Signal Mixed";
+                  if (ps.severity === "POSITIVE") return "\u2713 Strategy Confirmed";
+                  return "Strategy Detected";
+                })()}</span>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, minWidth: 0 }}>
 
                   {/* Dynamic — updates on chart hover */}
@@ -2885,6 +2895,42 @@ export default function TaxVista() {
                           </div>
                         </div>
                       </div>
+
+                      {/* Signal Quality card */}
+                      {vMetric.primarySignal && (
+                        <div className="tv-iblock" style={{
+                          marginTop: 20,
+                          borderColor: vMetric.primarySignal.severity === "POSITIVE" ? "var(--success)"
+                            : vMetric.primarySignal.severity === "MEDIUM" ? "var(--accent)"
+                            : "var(--danger)",
+                        }}>
+                          <div className="tv-iblock-title" style={{
+                            borderLeftColor: vMetric.primarySignal.severity === "POSITIVE" ? "var(--success)"
+                              : vMetric.primarySignal.severity === "MEDIUM" ? "var(--accent)"
+                              : "var(--danger)",
+                          }}>Signal Quality</div>
+                          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 8 }}>
+                            <div>
+                              <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--muted)", letterSpacing: "0.08em" }}>STATUS </span>
+                              <span style={{ fontFamily: "var(--mono)", fontSize: 12, fontWeight: 700, color: "var(--text)" }}>
+                                {vMetric.primarySignal.flag.replace(/_/g, " ")}
+                              </span>
+                            </div>
+                            <div>
+                              <span style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--muted)", letterSpacing: "0.08em" }}>SEVERITY </span>
+                              <span style={{
+                                fontFamily: "var(--mono)", fontSize: 12, fontWeight: 700,
+                                color: vMetric.primarySignal.severity === "POSITIVE" ? "var(--success)"
+                                  : vMetric.primarySignal.severity === "MEDIUM" ? "var(--accent)"
+                                  : "var(--danger)",
+                              }}>{vMetric.primarySignal.severity}</span>
+                            </div>
+                          </div>
+                          <p style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.7 }}>
+                            {vMetric.primarySignal.override}
+                          </p>
+                        </div>
+                      )}
 
                       {/* Insight signals */}
                       {vMetric.insights && (
