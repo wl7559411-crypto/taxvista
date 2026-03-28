@@ -1743,7 +1743,7 @@ export default function TaxVista() {
     // Sentence 1: income direction + magnitude (with low-base guard + event detection)
     if (incomeGrowth != null) {
       if (lowBase) {
-        items.push({ text: `Income increased significantly from a low base ($${Math.round(first.totalIncome).toLocaleString()} in ${first.year}). Growth rates are not meaningful at this scale — trajectory analysis begins once income exceeds $10K.`, metric: "income" });
+        items.push({ text: `Income increased significantly from a low base ($${Math.round(first.totalIncome).toLocaleString()} in ${first.year}). Growth rates are not meaningful at this scale — trajectory analysis begins once income exceeds $10K.`, metric: "income", type: "income_growth" });
       } else {
         const pct   = Math.abs(incomeGrowth * 100).toFixed(0);
         const dir   = incomeGrowth >= 0 ? "↑" : "↓";
@@ -1759,7 +1759,7 @@ export default function TaxVista() {
         } else {
           growthNote = "Income is effectively flat — no significant trajectory in either direction.";
         }
-        items.push({ text: `Gross income ${dir} ${pct}% (${first.year}→${last.year}). ${growthNote}`, metric: "income" });
+        items.push({ text: `Gross income ${dir} ${pct}% (${first.year}→${last.year}). ${growthNote}`, metric: "income", type: "income_growth" });
       }
     }
 
@@ -1767,48 +1767,70 @@ export default function TaxVista() {
     if (taxGrowth != null && incomeGrowth != null && taxGrowth > incomeGrowth + 0.05 && !lowBase) {
       const incPct = (incomeGrowth * 100).toFixed(0);
       const taxPct = (taxGrowth * 100).toFixed(0);
-      items.push({ text: `Over ${first.year}–${last.year}, income grew ${incPct}% while taxes grew ${taxPct}%, as earnings entered higher marginal brackets with limited deduction scaling — resulting in a shrinking share of each additional dollar retained after tax.`, metric: "tax" });
+      items.push({ text: `Over ${first.year}–${last.year}, income grew ${incPct}% while taxes grew ${taxPct}%, as earnings entered higher marginal brackets with limited deduction scaling — resulting in a shrinking share of each additional dollar retained after tax.`, metric: "tax", type: "tax_efficiency" });
     } else if (afterTaxGrowth != null && incomeGrowth != null && afterTaxGrowth < incomeGrowth - 0.05 && !lowBase) {
-      items.push({ text: `After-tax income is growing slower than gross income, indicating rising tax drag. A portion of income growth is being absorbed by higher marginal rates without corresponding tax optimization.`, metric: "afterTax" });
+      items.push({ text: `After-tax income is growing slower than gross income, indicating rising tax drag. A portion of income growth is being absorbed by higher marginal rates without corresponding tax optimization.`, metric: "afterTax", type: "tax_efficiency" });
     } else if (lowBase && taxGrowth != null && taxGrowth > 1) {
-      items.push({ text: `Tax burden increased sharply as income moved from near-zero into taxable brackets. This is a natural transition, not a structural inefficiency — but it creates the highest-leverage window for tax optimization.`, metric: "tax" });
+      items.push({ text: `Tax burden increased sharply as income moved from near-zero into taxable brackets. This is a natural transition, not a structural inefficiency — but it creates the highest-leverage window for tax optimization.`, metric: "tax", type: "tax_efficiency" });
     } else if (incomeGrowth != null && !lowBase) {
       const lastMetric = metrics[metrics.length - 1];
       if (lastMetric?.isLossDriven) {
-        items.push({ text: `Tax burden decreased primarily due to capital losses, not improved deduction structure. This reduction is not expected to repeat without similar losses.`, metric: "tax" });
+        items.push({ text: `Tax burden decreased primarily due to capital losses, not improved deduction structure. This reduction is not expected to repeat without similar losses.`, metric: "tax", type: "tax_efficiency" });
       } else {
-        items.push({ text: `Tax obligation is growing in line with income — no compression of take-home margin detected. Current deduction structure is keeping pace with income growth.`, metric: "tax" });
+        items.push({ text: `Tax obligation is growing in line with income — no compression of take-home margin detected. Current deduction structure is keeping pace with income growth.`, metric: "tax", type: "tax_efficiency" });
       }
     }
 
     // Sentence 3: income mix shift
     if (Math.abs(wagesDelta) > 0.05 || Math.abs(gainsDelta) > 0.05) {
       if (wagesDelta > 0.05 && gainsDelta < -0.05)
-        items.push({ text: `Income is shifting toward W-2 wages and away from investment income. This increases exposure to ordinary tax rates and reduces access to preferential capital gains treatment.`, metric: "income" });
+        items.push({ text: `Income is shifting toward W-2 wages and away from investment income. This increases exposure to ordinary tax rates and reduces access to preferential capital gains treatment.`, metric: "income", type: "income_mix" });
       else if (wagesDelta < -0.05 && gainsDelta > 0.05) {
         const firstFullR = results.find(r => r.year === first.year);
         const firstCG = firstFullR?.income?.capitalGains ?? 0;
         const isSpike = lastCapGains > firstCG * 3 && lastCapGains / lastTotalInc > 0.30;
         items.push({ text: isSpike
           ? `Capital gains spiked significantly this year — this likely reflects a one-time event (asset sale, exit) rather than structural income diversification. Tax impact may not repeat.`
-          : `Income mix is diversifying into capital gains, which are taxed at lower rates. This structural shift improves long-term tax efficiency if sustained.`, metric: "income" });
+          : `Income mix is diversifying into capital gains, which are taxed at lower rates. This structural shift improves long-term tax efficiency if sustained.`, metric: "income", type: "income_mix" });
       } else if (gainsDelta > 0.05) {
         const firstFullR = results.find(r => r.year === first.year);
         const firstCG = firstFullR?.income?.capitalGains ?? 0;
         const isSpike = lastCapGains > firstCG * 3 && lastCapGains / lastTotalInc > 0.30;
         items.push({ text: isSpike
           ? `Capital gains spiked significantly — likely a one-time event rather than sustained income diversification. Verify whether this level of investment income is expected to recur.`
-          : `Investment income share is growing. Capital gains and qualified dividends receive preferential tax rates — this diversification will reduce effective tax burden over time.`, metric: "income" });
+          : `Investment income share is growing. Capital gains and qualified dividends receive preferential tax rates — this diversification will reduce effective tax burden over time.`, metric: "income", type: "income_mix" });
       }
       else if (gainsDelta < -0.05) {
-        const lastCapGains = results.find(r => r.year === last.year)?.income?.capitalGains;
-        items.push({ text: lastCapGains != null && lastCapGains < 0
+        const lastCapGainsVal = results.find(r => r.year === last.year)?.income?.capitalGains;
+        items.push({ text: lastCapGainsVal != null && lastCapGainsVal < 0
           ? `Capital gains turned negative (loss position), reducing investment income share. This concentrates earnings in ordinary income and narrows tax flexibility.`
-          : `Investment income share is declining, concentrating earnings in ordinary income. This narrows tax flexibility and increases marginal rate exposure.`, metric: "income" });
+          : `Investment income share is declining, concentrating earnings in ordinary income. This narrows tax flexibility and increases marginal rate exposure.`, metric: "income", type: "income_mix" });
       }
     }
 
     return items;
+  })();
+
+  // ── Signal Override Layer (type-based, not phrase-based) ──
+  const overriddenInsights = (() => {
+    if (!trendInsights.length || !metrics.length) return trendInsights;
+    const lastM = metrics[metrics.length - 1];
+    const flags = new Set((lastM?.falseSignals ?? []).map(s => s.flag));
+    const hasOneTimeEvent    = flags.has("ONE_TIME_EVENT");
+    const hasIncomeCollapse  = flags.has("INCOME_COLLAPSE");
+    const hasFalseEfficiency = flags.has("FALSE_EFFICIENCY");
+    if (!hasOneTimeEvent && !hasIncomeCollapse && !hasFalseEfficiency) return trendInsights;
+
+    return trendInsights.map(item => {
+      if (hasOneTimeEvent) {
+        if (item.type === "income_growth") return { ...item, text: "Reported income growth includes a significant one-time capital event and may not reflect sustainable earnings trajectory." };
+        if (item.type === "income_mix") return { ...item, text: "Capital gains spiked significantly this year — this likely reflects a one-time event (asset sale, exit) rather than structural income diversification. Tax impact may not repeat." };
+      }
+      if (hasIncomeCollapse || hasFalseEfficiency) {
+        if (item.type === "tax_efficiency") return { ...item, text: "Tax metrics appear stable, but income has declined — efficiency improvements reflect contraction, not optimization." };
+      }
+      return item;
+    });
   })();
 
   // ── Dashboard derived state ──
@@ -2836,10 +2858,10 @@ export default function TaxVista() {
                       </div>
 
                       {/* Trend narrative */}
-                      {trendInsights.length > 0 && (
+                      {overriddenInsights.length > 0 && (
                         <div className="tv-iblock">
                           <div className="tv-iblock-title">Trend Narrative</div>
-                          {trendInsights.map((t, i) => (
+                          {overriddenInsights.map((t, i) => (
                             <p key={i}
                               className={activeMetric ? (t.metric === activeMetric ? "tv-insight-active" : "tv-insight-dim") : ""}
                               onMouseEnter={() => setActiveMetric(t.metric)}
@@ -3037,10 +3059,10 @@ export default function TaxVista() {
                     <span style={{ color: "var(--muted)", fontSize: 10 }}>financial intelligence</span>
                   </div>
                   <div className="tv-insights-panel">
-                    {trendInsights.length > 0 && (
+                    {overriddenInsights.length > 0 && (
                       <div className="tv-iblock">
                         <div className="tv-iblock-title">Multi-Year Trend</div>
-                        {trendInsights.map((t, i) => (
+                        {overriddenInsights.map((t, i) => (
                           <p key={i}
                             className={activeMetric ? (t.metric === activeMetric ? "tv-insight-active" : "tv-insight-dim") : ""}
                             onMouseEnter={() => setActiveMetric(t.metric)}
@@ -3385,10 +3407,10 @@ export default function TaxVista() {
             )}
 
             {/* Labeled trend narrative */}
-            {trendInsights.length > 0 && (
+            {overriddenInsights.length > 0 && (
               <div className="tv-pr-section">
                 <div className="tv-pr-section-title">Trend Narrative</div>
-                {trendInsights.map((t, i) => {
+                {overriddenInsights.map((t, i) => {
                   const labelMap = { income: "Income:", afterTax: "After-Tax:", tax: "Tax Efficiency:" };
                   return (
                     <div className="tv-pr-trend-bullet" key={i}>
