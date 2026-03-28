@@ -2004,13 +2004,19 @@ export default function TaxVista() {
           { text: " — partial lower-rate exposure; growing this share reduces effective rate over time" },
         ]);
       } else {
-        ins.push([
-          { text: "Investment income: " },
-          { text: investStr, accent: true },
-          { text: vHasOneTimeEvent
-            ? " — capital gains dominate income this year, likely reflecting a one-time liquidity event rather than a stable recurring income mix"
-            : " — strong lower-rate mix (capital gains + dividends); structural tax advantage — protect and maintain" },
-        ]);
+        if (vHasOneTimeEvent) {
+          ins.push([
+            { text: "Capital gains represent " },
+            { text: investStr + " of income this year", accent: true },
+            { text: ", driven by a one-time event rather than recurring investment income" },
+          ]);
+        } else {
+          ins.push([
+            { text: "Investment income: " },
+            { text: investStr, accent: true },
+            { text: " — strong lower-rate mix (capital gains + dividends); structural tax advantage — protect and maintain" },
+          ]);
+        }
       }
     }
 
